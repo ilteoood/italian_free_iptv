@@ -1,0 +1,28 @@
+name: Publish new list
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build image job
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@master
+      - name: Compile java
+        run: mvn clean compile
+      - name: Generate playlist file
+        run: mvn exec:java -Dexec.mainClass=Main
+      - name: Update gists
+        uses: popsiclestick/gist-sync-action@v1.0.0
+        id: sync
+        with:
+          auth: ${{ secrets.GISTS_SECRET }}
+          gist_url: https://gist.github.com/ilteoood/3308b93600c557c1b37c43a1ab908d92
+          gist_title: italian_free_iptv.m3u8
+          gist_description: italian_free_iptv.m3u8
+          github_file: playlist.m3u8
